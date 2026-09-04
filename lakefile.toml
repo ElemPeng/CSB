@@ -1,0 +1,10 @@
+name = "blerp"
+version = "0.1.0"
+defaultTargets = ["blerp"]
+
+[[lean_lib]]
+name = "Blerp"
+
+[[lean_exe]]
+name = "blerp"
+root = "Main"
