@@ -5,8 +5,7 @@ phi : A -> B
 this is essentially a proof that if A and B are sets such that |A| <= |B| and |B| <= |A| (ie there are injections from A to B and vice versa), then |A| = |B| (ie there is a bijection from A to B). This proves that the relation |A| <= |B| iff there is an injection f : A -> B is antisymmetric. 
 
 The basic argument is as follows:
-
-because f and g are injective functions, for any element a of A, there is a chain (possibly of zero length, possibly infinite) of points, alternatively in B and A so that a = g (b) = g (f (a1)) = g (f (g (b1)))....
+For any element a of A, there is a chain (possibly of zero length, possibly infinite) of points, alternatively in B and A so that a = g (b) = g (f (a1)) = g (f (g (b1)))....
 
 there are three possibilities: 
 1) This chain is finite and ends in A (or in fact never starts); in this case a is in A1.
