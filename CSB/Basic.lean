@@ -3,7 +3,7 @@ inductive InX1 {X Y : Type u} (f : X → Y) (g : Y → X) : X → Prop
     | step : ∀ x : X, InX1 f g x → InX1 f g (g (f x))
 
 theorem CSB {A B : Type u} (f : A → B) (g : B → A) (hf : f.Injective) (hg : g.Injective) :
-    ∃ h : A → B, h.Injective ∧ h.Surjective := by
+    ∃ φ : A → B, φ.Injective ∧ φ.Surjective := by
 /-
     A1 is everything in A that stops in A when you pull back
     same for B1 and B
@@ -98,7 +98,7 @@ are mutually exclusive as well (same for B)
         have h := InX1.step (f:= g) (g:= f) b hb
         rw [←hb'] at h; exact h
 
-    have hf_A1_of_B2 : ∀ b : B, InB2 b → InA1 (g b) := by
+    have hg_A1_of_B2 : ∀ b : B, InB2 b → InA1 (g b) := by
         intro b hb; unfold InB2 at hb
         have ⟨a, ha, ha'⟩ := hb
         have h := InX1.step (f:= f) (g:= g) a ha
@@ -139,7 +139,7 @@ are mutually exclusive as well (same for B)
         have ⟨b, hb⟩  := hA1_cp a ha1; refine ⟨b, ?_, hb⟩
         apply hpartB b
         ·   intro hb1; exact ha2 b hb1 hb
-        ·   intro hb2; rw [hb] at ha1; exact ha1 (hf_A1_of_B2 b hb2)
+        ·   intro hb2; rw [hb] at ha1; exact ha1 (hg_A1_of_B2 b hb2)
 
     have hf_B3_of_A3 : ∀ a : A, InA3 a → InB3 (f a) := by
         intro a ha; have ⟨b, hb1, hb2⟩ := (hg_B3_A3_surj a ha)
@@ -210,33 +210,21 @@ are mutually exclusive as well (same for B)
         ·   expose_names; exfalso; have h' : InA1 y ∨ InA3 y := by
                 rw [Classical.or_iff_not_imp_left]
                 exact fun x ↦ hpartA y x h_1
-            rcases h' with ha | ha
-            ·   have hxy' := congrArg g hxy; rw [hg_g_inv x h] at hxy'
-                subst hxy'; have ⟨b', hb'1, hb'2⟩ := h
-                rw [Function.Injective.eq_iff hg] at hb'2
-                have hb'3 : InB2 b' := ⟨y, ha, hb'2.symm⟩
-                exact (Or.neg_resolve_left (not_B2_of_B1 b') hb'1) hb'3
-            ·   have hxy' := congrArg g hxy; rw [hg_g_inv x h] at hxy'
-                subst hxy'; have ⟨b', hb'1, hb'2⟩ := h
-                rw [Function.Injective.eq_iff hg] at hb'2
-                have hb'3 : InB3 (f y) := hf_B3_of_A3 y ha
-                rw [hb'2] at hb'3
-                unfold InB3 at hb'3; exact hb'3.1 hb'1
+            have hxy' := congrArg g hxy; rw [hg_g_inv x h] at hxy'
+            subst hxy'; rcases h' with ha | ha
+            ·   have hy' := hf_B2_of_A1 y ha;  have hy'' := hg_A1_of_B2 (f y) hy'
+                exact (Or.neg_resolve_left (not_A2_of_A1 (g (f y))) hy'') h
+            ·   have hy' := hf_B3_of_A3 y ha; have hy'' := hg_A3_of_B3 (f y) hy'
+                exact hy''.2 h
         ·   expose_names; exfalso; have h' : InA1 x ∨ InA3 x := by
                 rw [Classical.or_iff_not_imp_left]
                 exact fun y ↦ hpartA x y h
-            rcases h' with ha | ha
-            ·   have hxy' := congrArg g hxy; rw [hg_g_inv y h_1] at hxy'
-                subst hxy'; have ⟨b', hb'1, hb'2⟩ := h_1
-                rw [Function.Injective.eq_iff hg] at hb'2
-                have hb'3 : InB2 b' := ⟨x, ha, hb'2.symm⟩
-                exact (Or.neg_resolve_left (not_B2_of_B1 b') hb'1) hb'3
-            ·   have hxy' := congrArg g hxy; rw [hg_g_inv y h_1] at hxy'
-                subst hxy'; have ⟨b', hb'1, hb'2⟩ := h_1
-                rw [Function.Injective.eq_iff hg] at hb'2
-                have hb'3 : InB3 (f x) := hf_B3_of_A3 x ha
-                rw [hb'2] at hb'3
-                unfold InB3 at hb'3; exact hb'3.1 hb'1
+            have hxy' := congrArg g hxy; rw [hg_g_inv y h_1] at hxy'
+            subst hxy'; rcases h' with ha | ha
+            ·   have hx' := hf_B2_of_A1 x ha; have hx'' := hg_A1_of_B2 (f x) hx'
+                exact (Or.neg_resolve_left (not_A2_of_A1 (g (f x))) hx'') h_1
+            ·   have hx' := hf_B3_of_A3 x ha; have hx'' := hg_A3_of_B3 (f x) hx'
+                exact hx''.2 h_1
         ·   rwa [Function.Injective.eq_iff hf] at hxy
     ·   intro b; have hcases := hpartB b; simp [← Classical.or_iff_not_imp_left] at hcases
         rcases hcases with h | h | h
