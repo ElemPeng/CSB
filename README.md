@@ -7,6 +7,8 @@ this is essentially a proof that if A and B are sets such that |A| <= |B| and |B
 The basic argument is as follows:
 For any element a of A, there is a chain (possibly of zero length, possibly infinite) of points, alternatively in B and A so that a = g (b) = g (f (a1)) = g (f (g (b1)))....
 
+because f and g are injective, this chain is uniquely determined for each a in A.
+
 there are three possibilities: 
 1) This chain is finite and ends in A (or in fact never starts); in this case a is in A1.
 2) This chain is finite and ends in B; in this case a is in A2.
