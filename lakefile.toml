@@ -1,9 +1,9 @@
-name = "blerp"
+name = "CSB"
 version = "0.1.0"
-defaultTargets = ["blerp"]
+defaultTargets = ["CSB"]
 
 [[lean_lib]]
-name = "Blerp"
+name = "CSB"
 
 [[lean_exe]]
 name = "blerp"
