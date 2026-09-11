@@ -1,6 +1,6 @@
-inductive InX1 {X Y : Type u} (f : X → Y) (g : Y → X) : X → Prop
-    | base : ∀ x : X, (∀ y : Y, x ≠ g y) → InX1 f g x
-    | step : ∀ x : X, InX1 f g x → InX1 f g (g (f x))
+inductive InX1 {X Y : Type u} (right : X → Y) (left : Y → X) : X → Prop
+    | base : ∀ x : X, (∀ y : Y, x ≠ left y) → InX1 right left x
+    | step : ∀ x : X, InX1 right left x → InX1 right left (left (right x))
 
 theorem CSB {A B : Type u} (f : A → B) (g : B → A) (hf : f.Injective) (hg : g.Injective) :
     ∃ φ : A → B, φ.Injective ∧ φ.Surjective := by
@@ -28,7 +28,7 @@ theorem CSB {A B : Type u} (f : A → B) (g : B → A) (hf : f.Injective) (hg : 
 /-
 I need to show that each a : A lies in exactly one of A1, A2, A3. lying in A3
 by definition means not being in A1 or A2; so I need to show that A1 and A2
-are mutually exclusive as well (same for B)
+are mutually exclusive as well (Same for B but I never use that fact)
 -/
 
     have not_A2_of_A1 : ∀ a : A, ¬ InA1 a ∨ ¬ InA2 a := by
@@ -48,23 +48,6 @@ are mutually exclusive as well (same for B)
                 simp [Function.Injective.ne_iff hf]
                 exact ha'2 b' hb'1
 
-    have not_B2_of_B1 : ∀ b : B, ¬ InB1 b ∨ ¬ InB2 b := by
-        simp only [Classical.or_iff_not_imp_left, Classical.not_not]
-        intro z hz; induction hz with
-        | base b hb =>
-            unfold InB2; simp only [not_exists, not_and]
-            intro a ha; exact hb a
-        | step b' hb'1 hb'2 =>
-            unfold InB2 at hb'2 ⊢
-            simp only [not_exists, not_and] at hb'2 ⊢
-            simp [Function.Injective.ne_iff hf]
-            intro y hy; induction hy with
-            |   base a ha =>
-                apply Ne.symm; exact ha b'
-            |   step a' ha'1 ha'2 =>
-                simp [Function.Injective.ne_iff hg]
-                exact hb'2 a' ha'1
-
 /-
     The basic trick now is that f is a bijection from A1 to B2, and from A3 to B3,
     and g is a bijection from B1 to A2, so g⁻¹ is a bijection from A2 to B1.
@@ -74,11 +57,9 @@ are mutually exclusive as well (same for B)
     just need to show each of the pieces is surjective and that each of their ranges
     are what they should be
 
-    we have f : A1 → B2 is surjective by the definition of B2
+    we have g : B1 → A2 is surjective by the definition of A2
+    f : A1 → B2 is surjective as well but again we don't need it
 -/
-
-    have hf_A1_B2_surj : ∀ b : B, InB2 b → ∃ a : A, InA1 a ∧ b = f a := by
-        unfold InB2; exact fun _ h ↦ h
 
     have hg_B1_A2_surj : ∀ a : A, InA2 a → ∃ b : B, InB1 b ∧ a = g b := by
         unfold InA2; exact fun _ h ↦ h
@@ -95,13 +76,13 @@ are mutually exclusive as well (same for B)
     have hf_B1_of_A2 : ∀ a : A, InA2 a →  InB1 (f a) := by
         intro a ha; unfold InA2 at ha
         have ⟨b, hb, hb'⟩ := ha
-        have h := InX1.step (f:= g) (g:= f) b hb
+        have h := InX1.step (right := g) (left := f) b hb
         rw [←hb'] at h; exact h
 
     have hg_A1_of_B2 : ∀ b : B, InB2 b → InA1 (g b) := by
         intro b hb; unfold InB2 at hb
         have ⟨a, ha, ha'⟩ := hb
-        have h := InX1.step (f:= f) (g:= g) a ha
+        have h := InX1.step (right := f) (left := g) a ha
         rw [←ha'] at h; exact h
 
     have hg_A2_of_B1 : ∀ b : B, InB1 b → InA2 (g b) := fun b hb ↦ ⟨b, hb, rfl⟩
@@ -112,12 +93,12 @@ are mutually exclusive as well (same for B)
 -/
     have hB1_cp : ∀ b : B, ¬ InB1 b → ∃ a : A, b = f a := by
         intro b hb; apply Classical.byContradiction; intro h
-        simp at h; have h' := InX1.base (f := g) (g := f) b h
+        simp at h; have h' := InX1.base (right := g) (left := f) b h
         exact hb h'
 
     have hA1_cp : ∀ a : A, ¬ InA1 a → ∃ b : B, a = g b := by
         intro a ha; apply Classical.byContradiction; intro h
-        simp at h; have h' := InX1.base (f := f) (g := g) a h
+        simp at h; have h' := InX1.base (right := f) (left := g) a h
         exact ha h'
 
 /-
