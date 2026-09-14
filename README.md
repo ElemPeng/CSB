@@ -27,4 +27,4 @@ We then define a function phi : A -> B so that
 
 This function is the bijection we need.
 
-The proof itself is in CSB/Basic.lean; probably should have been in CSB.lean or Main.lean but I'm lazy.
+To simplify things (many of the proofs are identical except with X and Y switched and f and g switched) there are several generic proofs before the main theorem CSR.
