@@ -1,4 +1,4 @@
-# A proof of Cantor-Schroder-Bernstein:
+# A proof of Cantor-Schröder-Bernstein:
 If A and B are types, f : A -> B is injective, and g : B -> A is injective, then there is a bijection
 phi : A -> B
 

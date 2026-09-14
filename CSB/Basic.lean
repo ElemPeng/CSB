@@ -15,16 +15,14 @@ def InX3 {X Y : Type u} (right : X → Y) (left : Y → X) : X → Prop :=
 
 theorem Y1_of_X2 {X Y : Type u} (right : X → Y) (left : Y → X) :
  ∀ x : X, InX2 right left x → InX1 left right (right x) := by
-        intro a ha; unfold InX2 at ha
-        have ⟨b, hb, hb'⟩ := ha
+        intro a ha; unfold InX2 at ha; have ⟨b, hb, hb'⟩ := ha
         have h := InX1.step (right := left) (left := right) b hb
         rw [←hb'] at h; exact h
 
 theorem hX1_cp {X Y : Type u} (right : X → Y) (left : Y → X)  :
     ∀ x : X, ¬ InX1 right left x → ∃ y : Y, x = left y := by
-        intro b hb; apply Classical.byContradiction; intro h
-        simp at h; have h' := InX1.base (right := right) (left := left) b h
-        exact hb h'
+        intro b hb; apply Classical.byContradiction; intro h; simp at h
+        have h' := InX1.base (right := right) (left := left) b h; exact hb h'
 
 theorem partX {X Y : Type u} (right : X → Y) (left : Y → X) :
     ∀ x : X, ¬ InX1 right left x → ¬ InX2 right left x → InX3 right left x :=
@@ -44,10 +42,8 @@ theorem Y3_of_X3 {X Y : Type u} {right : X → Y} {left : Y → X}
  ∀ x : X, InX3 right left x → InX3 left right (right x) := by
         intro a ha; have ⟨b, hb1, hb2⟩ := (X3_Y3_surj left right a ha)
         rw [hb2]; apply partX left right
-        ·   generalize heq : right (left b) = y
-            intro hb'2; cases hb'2 with
-            | base z hz =>
-                exact (hz (left b)) heq.symm
+        ·   generalize heq : right (left b) = y; intro hb'2; cases hb'2 with
+            | base z hz => exact (hz (left b)) heq.symm
             | step z' hz' =>
                 rw [Function.Injective.eq_iff hr_inj, Function.Injective.eq_iff hl_inj] at heq
                 subst heq; unfold InX3 at hb1; exact hb1.1 hz'
@@ -64,11 +60,10 @@ theorem CSB {A B : Type u} (f : A → B) (g : B → A) (hf : f.Injective) (hg : 
 --- A1 is everything in A that stops in A when you pull back; same for B1 and B
 
     let InA1 : A → Prop := InX1 f g; let InB1 : B → Prop := InX1 g f
-/-
-    A2 is everything in A that stops in B
-    B2 is everything in B that stops in A
-    A2 = g (B1) and B2 = f (A1)
--/
+
+/-  A2 is everything in A that stops in B; B2 is everything in B that stops in A
+    A2 = g (B1) and B2 = f (A1) -/
+
     let InA2 : A → Prop := InX2 f g; let InB2 : B → Prop := InX2 g f
 
 --- A3 and B3 are everything else : infinite ascent
